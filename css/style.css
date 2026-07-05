@@ -150,6 +150,37 @@ img {
   color: var(--primary);
 }
 
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 2.25rem;
+}
+
+.lang-switch {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+}
+
+.lang-switch a {
+  color: var(--text-dim);
+}
+
+.lang-switch a:hover {
+  color: var(--primary);
+}
+
+.lang-active {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.lang-sep {
+  color: var(--text-dim);
+}
+
 .nav-toggle {
   display: none;
   flex-direction: column;
