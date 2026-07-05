@@ -17,6 +17,18 @@ navLinks.querySelectorAll('a').forEach((link) => {
   });
 });
 
+// Scroll progress bar
+const progressBar = document.querySelector('.scroll-progress');
+
+function updateProgress() {
+  const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+  const progress = scrollable > 0 ? (window.scrollY / scrollable) * 100 : 0;
+  progressBar.style.width = `${progress}%`;
+}
+
+window.addEventListener('scroll', updateProgress, { passive: true });
+updateProgress();
+
 // Scroll spy: highlight active nav link
 const sections = document.querySelectorAll('main section[id]');
 const navAnchors = document.querySelectorAll('.nav-links a');
@@ -39,7 +51,7 @@ sections.forEach((section) => spyObserver.observe(section));
 
 // Reveal-on-scroll animation
 const revealTargets = document.querySelectorAll(
-  '.about-grid, .projects-grid .card, .timeline-item, .contact-form, .social-links'
+  '.about-grid, .projects-grid .card, .timeline-item, .contact-list, .contact-form, .expertise-block, .lang-lead-grid'
 );
 
 revealTargets.forEach((el) => el.classList.add('reveal'));
@@ -57,3 +69,38 @@ const revealObserver = new IntersectionObserver(
 );
 
 revealTargets.forEach((el) => revealObserver.observe(el));
+
+// Animated stat counters
+const statNumbers = document.querySelectorAll('.stat-number');
+
+function animateCount(el) {
+  const target = parseInt(el.getAttribute('data-target'), 10);
+  const suffix = el.getAttribute('data-suffix') || '';
+  const duration = 1400;
+  const start = performance.now();
+
+  function tick(now) {
+    const elapsed = now - start;
+    const progress = Math.min(elapsed / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    const value = Math.round(target * eased);
+    el.textContent = `${value}${suffix}`;
+    if (progress < 1) requestAnimationFrame(tick);
+  }
+
+  requestAnimationFrame(tick);
+}
+
+const statObserver = new IntersectionObserver(
+  (entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        animateCount(entry.target);
+        statObserver.unobserve(entry.target);
+      }
+    });
+  },
+  { threshold: 0.5 }
+);
+
+statNumbers.forEach((el) => statObserver.observe(el));
