@@ -1,21 +1,26 @@
 // Footer year
-document.getElementById('year').textContent = new Date().getFullYear();
+const yearEl = document.getElementById('year');
+if (yearEl) yearEl.textContent = new Date().getFullYear();
+
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 // Mobile nav toggle
 const navToggle = document.querySelector('.nav-toggle');
-const navLinks = document.querySelector('.nav-links');
+const navMenu = document.querySelector('.nav-menu');
 
-navToggle.addEventListener('click', () => {
-  const isOpen = navLinks.classList.toggle('open');
-  navToggle.setAttribute('aria-expanded', isOpen);
-});
-
-navLinks.querySelectorAll('a').forEach((link) => {
-  link.addEventListener('click', () => {
-    navLinks.classList.remove('open');
-    navToggle.setAttribute('aria-expanded', 'false');
+if (navToggle && navMenu) {
+  navToggle.addEventListener('click', () => {
+    const isOpen = navMenu.classList.toggle('open');
+    navToggle.setAttribute('aria-expanded', isOpen);
   });
-});
+
+  navMenu.querySelectorAll('a').forEach((link) => {
+    link.addEventListener('click', () => {
+      navMenu.classList.remove('open');
+      navToggle.setAttribute('aria-expanded', 'false');
+    });
+  });
+}
 
 // Scroll progress bar
 const progressBar = document.querySelector('.scroll-progress');
@@ -26,52 +31,38 @@ function updateProgress() {
   progressBar.style.width = `${progress}%`;
 }
 
-window.addEventListener('scroll', updateProgress, { passive: true });
-updateProgress();
-
-// Scroll spy: highlight active nav link
-const sections = document.querySelectorAll('main section[id]');
-const navAnchors = document.querySelectorAll('.nav-links a');
-
-const spyObserver = new IntersectionObserver(
-  (entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        const id = entry.target.getAttribute('id');
-        navAnchors.forEach((a) => {
-          a.classList.toggle('active', a.getAttribute('href') === `#${id}`);
-        });
-      }
-    });
-  },
-  { rootMargin: '-40% 0px -55% 0px' }
-);
-
-sections.forEach((section) => spyObserver.observe(section));
+if (progressBar) {
+  window.addEventListener('scroll', updateProgress, { passive: true });
+  updateProgress();
+}
 
 // Reveal-on-scroll animation
 const revealTargets = document.querySelectorAll(
-  '.about-grid, .projects-grid .card, .timeline-item, .contact-list, .contact-form, .expertise-block, .lang-lead-grid'
+  '.about-grid, .projects-grid .card, .case-study, .contact-list, .contact-form, .pillar-body, .lang-list'
 );
 
-revealTargets.forEach((el) => el.classList.add('reveal'));
+if (prefersReducedMotion) {
+  revealTargets.forEach((el) => el.classList.add('visible'));
+} else {
+  revealTargets.forEach((el) => el.classList.add('reveal'));
 
-const revealObserver = new IntersectionObserver(
-  (entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('visible');
-        revealObserver.unobserve(entry.target);
-      }
-    });
-  },
-  { threshold: 0.15 }
-);
+  const revealObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.15 }
+  );
 
-revealTargets.forEach((el) => revealObserver.observe(el));
+  revealTargets.forEach((el) => revealObserver.observe(el));
+}
 
 // Animated stat counters
-const statNumbers = document.querySelectorAll('.stat-number');
+const statNumbers = document.querySelectorAll('.stat-count');
 
 function animateCount(el) {
   const target = parseInt(el.getAttribute('data-target'), 10);
@@ -91,16 +82,26 @@ function animateCount(el) {
   requestAnimationFrame(tick);
 }
 
-const statObserver = new IntersectionObserver(
-  (entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        animateCount(entry.target);
-        statObserver.unobserve(entry.target);
-      }
-    });
-  },
-  { threshold: 0.5 }
-);
+function setFinalCount(el) {
+  const target = el.getAttribute('data-target');
+  const suffix = el.getAttribute('data-suffix') || '';
+  el.textContent = `${target}${suffix}`;
+}
 
-statNumbers.forEach((el) => statObserver.observe(el));
+if (prefersReducedMotion) {
+  statNumbers.forEach(setFinalCount);
+} else {
+  const statObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          animateCount(entry.target);
+          statObserver.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.5 }
+  );
+
+  statNumbers.forEach((el) => statObserver.observe(el));
+}
